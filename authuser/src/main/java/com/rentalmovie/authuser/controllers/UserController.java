@@ -5,6 +5,7 @@ import com.rentalmovie.authuser.models.UserModel;
 import com.rentalmovie.authuser.services.UserService;
 import com.rentalmovie.authuser.specifications.SpecificationTemplate;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Log4j2
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/users")
@@ -57,12 +59,13 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Object> deleteById(@PathVariable UUID userId) {
+        log.debug("DELETE deleteById userId: {}", userId);
         Optional<UserModel> userModelOptional = userService.findById(userId);
         if (userModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
         }
         userService.delete(userId);
-
+        log.info("User deleted userId: {}", userId);
         return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
     }
 
@@ -74,6 +77,7 @@ public class UserController {
             @JsonView(UserDTO.UserView.UserPut.class)
             UserDTO userDTO
     ) {
+        log.debug("PUT updateUser userDTO: {}", userDTO.toString());
         Optional<UserModel> userModelOptional = userService.findById(userId);
         if (userModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
@@ -85,6 +89,8 @@ public class UserController {
         userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
 
         userService.save(userModel);
+        log.debug("PUT updateUser userModel: {}", userModel.toString());
+        log.info("User updated successfully");
 
         return ResponseEntity.status(HttpStatus.OK).body(userModel);
     }
@@ -97,6 +103,7 @@ public class UserController {
             @JsonView(UserDTO.UserView.PasswordPut.class)
             UserDTO userDTO
     ) {
+        log.debug("PUT updatePassword userDTO: {}", userDTO.toString());
         Optional<UserModel> userModelOptional = userService.findById(userId);
         if (userModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
@@ -110,6 +117,8 @@ public class UserController {
         userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
 
         userService.save(userModel);
+        log.debug("PUT updatePassword userModel: {}", userModel.toString());
+        log.info("User password updated successfully");
 
         return ResponseEntity.status(HttpStatus.OK).body("Passoword updated successfully");
     }
@@ -122,6 +131,7 @@ public class UserController {
             @JsonView(UserDTO.UserView.ImagePut.class)
             UserDTO userDTO
     ) {
+        log.debug("PUT updateImage userDTO: {}", userDTO.toString());
         Optional<UserModel> userModelOptional = userService.findById(userId);
         if (userModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
@@ -132,6 +142,8 @@ public class UserController {
         userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
 
         userService.save(userModel);
+        log.debug("PUT updateImage userModel: {}", userModel.toString());
+        log.info("User Image updated successfully");
 
         return ResponseEntity.status(HttpStatus.OK).body(userModel);
     }
