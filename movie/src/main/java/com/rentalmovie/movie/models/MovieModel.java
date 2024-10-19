@@ -4,13 +4,18 @@ package com.rentalmovie.movie.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rentalmovie.movie.enums.DeleteStatus;
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+@Data
 @Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "TB_MOVIES")
@@ -34,7 +39,7 @@ public class MovieModel implements Serializable {
     private int releaseYear;
 
     @Column(nullable = false)
-    private String ageRange;
+    private int ageRange;
 
     @Column(nullable = false)
     private int durationMinutes;
@@ -48,20 +53,30 @@ public class MovieModel implements Serializable {
     @Column(nullable = false)
     private String movieUrl;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeleteStatus deleteStatus;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'z'")
     @Column(nullable = false)
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'z'")
     @Column(nullable = false)
     private LocalDateTime lastUpdateDate;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToMany(mappedBy = "movies")
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "TB_GENRE_MOVIE",
+            joinColumns = {@JoinColumn(name = "movie_id")},
+            inverseJoinColumns = {@JoinColumn(name = "genre_id")}
+    )
+    @Fetch(FetchMode.SUBSELECT)
     private Set<GenreModel> genres;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private ProductionStudioModel productionStudio;
 
 }

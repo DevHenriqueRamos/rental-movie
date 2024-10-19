@@ -3,8 +3,11 @@ package com.rentalmovie.movie.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rentalmovie.movie.enums.DeleteStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -22,17 +25,22 @@ public class ProductionStudioModel implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID productionStudioId;
 
-    @Column(nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 100)
     private String name;
 
     @Column(length = 250)
     private String description;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeleteStatus deleteStatus;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'z'")
     @Column(nullable = false)
     private LocalDateTime creationDate;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "productionStudio")
+    @OneToMany(mappedBy = "productionStudio", fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<MovieModel> movies;
 }
