@@ -1,9 +1,8 @@
 package com.rentalmovie.movie.controllers;
 
 import com.rentalmovie.movie.dtos.ProductionStudioDTO;
-import com.rentalmovie.movie.enums.DeleteStatus;
 import com.rentalmovie.movie.models.ProductionStudioModel;
-import com.rentalmovie.movie.services.productionstudio.ProductionStudioService;
+import com.rentalmovie.movie.services.ProductionStudioService;
 import com.rentalmovie.movie.specifications.SpecificationTemplate;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
@@ -27,13 +26,12 @@ import java.util.UUID;
 public class ProductionStudioController {
 
     @Autowired
-    private ProductionStudioService productionStudioService;
+    ProductionStudioService productionStudioService;
 
     @PostMapping
     public ResponseEntity<ProductionStudioModel> save(@RequestBody @Valid ProductionStudioDTO productionStudioDTO ){
         var productionStudioModel = new ProductionStudioModel();
         BeanUtils.copyProperties(productionStudioDTO, productionStudioModel);
-        productionStudioModel.setDeleteStatus(DeleteStatus.ACTIVE);
         productionStudioModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
         return ResponseEntity.status(HttpStatus.CREATED).body(productionStudioService.save(productionStudioModel));
     }
@@ -44,14 +42,14 @@ public class ProductionStudioController {
             @PageableDefault(page = 0, size = 10, sort = "productionStudioId", direction = Sort.Direction.ASC) Pageable pageable
     ){
         Page<ProductionStudioModel> productionStudioModelPage =
-                productionStudioService.findAllActive(SpecificationTemplate.<ProductionStudioModel>hasActiveStatus().and(specification), pageable);
+                productionStudioService.findAll(specification, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(productionStudioModelPage);
     }
 
     @GetMapping("/{productionStudioId}")
     public ResponseEntity<Object> getById(@PathVariable UUID productionStudioId) {
-        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findActiveById(productionStudioId);
+        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
         if(productionStudioModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
         }
@@ -60,7 +58,7 @@ public class ProductionStudioController {
 
     @PutMapping("/{productionStudioId}")
     public ResponseEntity<Object> update(@PathVariable UUID productionStudioId, @RequestBody @Valid ProductionStudioDTO productionStudioDTO) {
-        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findActiveById(productionStudioId);
+        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
         if(productionStudioModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
         }
@@ -71,13 +69,11 @@ public class ProductionStudioController {
 
     @DeleteMapping("/{productionStudioId}")
     public ResponseEntity<Object> update(@PathVariable UUID productionStudioId) {
-        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findActiveById(productionStudioId);
+        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
         if(productionStudioModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
         }
-        var productionStudioModel = productionStudioModelOptional.get();
-        productionStudioModel.setDeleteStatus(DeleteStatus.INACTIVE);
-        productionStudioService.save(productionStudioModel);
+        productionStudioService.delete(productionStudioModelOptional.get());
         return ResponseEntity.status(HttpStatus.OK).body("Production studio deleted successfully");
     }
 }

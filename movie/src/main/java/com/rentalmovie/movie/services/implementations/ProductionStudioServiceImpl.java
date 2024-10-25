@@ -1,7 +1,8 @@
-package com.rentalmovie.movie.services.productionstudio;
+package com.rentalmovie.movie.services.implementations;
 
 import com.rentalmovie.movie.models.ProductionStudioModel;
 import com.rentalmovie.movie.repositories.ProductionStudioRepository;
+import com.rentalmovie.movie.services.ProductionStudioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,14 +13,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class ProductionStudioService implements IProductionStudioService {
+public class ProductionStudioServiceImpl implements ProductionStudioService {
 
     @Autowired
-    private ProductionStudioRepository productionStudioRepository;
+    ProductionStudioRepository productionStudioRepository;
 
     @Override
-    public ProductionStudioModel findById(UUID productionStudioId) {
-        return productionStudioRepository.findById(productionStudioId).orElse(null);
+    public Optional<ProductionStudioModel> findById(UUID productionStudioId) {
+        return productionStudioRepository.findById(productionStudioId);
     }
 
     @Override
@@ -28,12 +29,12 @@ public class ProductionStudioService implements IProductionStudioService {
     }
 
     @Override
-    public Page<ProductionStudioModel> findAllActive(Specification<ProductionStudioModel> specification, Pageable pageable) {
+    public Page<ProductionStudioModel> findAll(Specification<ProductionStudioModel> specification, Pageable pageable) {
         return productionStudioRepository.findAll(specification, pageable);
     }
 
     @Override
-    public Optional<ProductionStudioModel> findActiveById(UUID productionStudioId) {
-        return productionStudioRepository.findActiveById(productionStudioId);
+    public void delete(ProductionStudioModel productionStudioModel) {
+        productionStudioRepository.delete(productionStudioModel);
     }
 }

@@ -1,0 +1,30 @@
+services:
+  postgres_rental_movie:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "admin"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - postgres-rental-network
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "hramos@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "80:80"
+    depends_on:
+      - postgres_rental_movie
+    networks:
+      - postgres-rental-network
+
+volumes:
+  pgdata:
+
+networks: 
+  postgres-rental-network:
+    driver: bridge

@@ -17,5 +17,4 @@ public class ResolverConfig extends WebMvcConfigurationSupport {
         argumentResolvers.add(new PageableHandlerMethodArgumentResolver());
         super.addArgumentResolvers(argumentResolvers);
     }
-
 }

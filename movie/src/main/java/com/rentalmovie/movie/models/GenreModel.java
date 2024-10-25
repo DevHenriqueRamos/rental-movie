@@ -3,7 +3,6 @@ package com.rentalmovie.movie.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rentalmovie.movie.enums.DeleteStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Fetch;
@@ -35,10 +34,7 @@ public class GenreModel implements Serializable {
     @Column(nullable = false)
     private LocalDateTime creationDate;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DeleteStatus deleteStatus;
-
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToMany(mappedBy = "genres", fetch = FetchType.LAZY)
     @Fetch(FetchMode.SUBSELECT)
     private Set<MovieModel> movies;

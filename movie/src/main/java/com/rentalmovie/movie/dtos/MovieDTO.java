@@ -53,10 +53,7 @@ public class MovieDTO {
     @NotBlank(groups = {MovieView.RegistrationPost.class, MovieView.MoviePut.class})
     @JsonView({MovieView.RegistrationPost.class, MovieView.MoviePut.class})
     private String movieUrl;
-
-    @JsonView({MovieView.RegistrationPost.class})
-    private UUID productionStudioId;
     
-    @JsonView({MovieView.RegistrationPost.class, MovieView.GenresPut.class})
+    @JsonView({MovieView.GenresPut.class})
     private Set<UUID> genres;
 }

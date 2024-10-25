@@ -1,21 +1,22 @@
-package com.rentalmovie.movie.services.genre;
+package com.rentalmovie.movie.services.implementations;
 
 import com.rentalmovie.movie.models.GenreModel;
 import com.rentalmovie.movie.repositories.GenreRepository;
+import com.rentalmovie.movie.services.GenreService;
+import com.rentalmovie.movie.specifications.SpecificationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class GenreService implements IGenreService{
+public class GenreServiceImpl implements GenreService {
 
     @Autowired
-    private GenreRepository genreRepository;
+    GenreRepository genreRepository;
 
     @Override
     public Optional<GenreModel> findById(UUID genreId) {
@@ -28,12 +29,12 @@ public class GenreService implements IGenreService{
     }
 
     @Override
-    public Page<GenreModel> findAllActive(Specification<GenreModel> specification, Pageable pageable) {
+    public Page<GenreModel> findAll(SpecificationTemplate.GenreSpecification specification, Pageable pageable) {
         return genreRepository.findAll(specification, pageable);
     }
 
     @Override
-    public Optional<GenreModel> findActiveById(UUID genreId) {
-        return genreRepository.findActiveById(genreId);
+    public void delete(GenreModel genreModel) {
+        genreRepository.delete(genreModel);
     }
 }

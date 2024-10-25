@@ -31,10 +31,6 @@ public class ProductionStudioModel implements Serializable {
     @Column(length = 250)
     private String description;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DeleteStatus deleteStatus;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'z'")
     @Column(nullable = false)
     private LocalDateTime creationDate;

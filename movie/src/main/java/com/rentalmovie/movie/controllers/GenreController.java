@@ -1,9 +1,8 @@
 package com.rentalmovie.movie.controllers;
 
 import com.rentalmovie.movie.dtos.GenreDTO;
-import com.rentalmovie.movie.enums.DeleteStatus;
 import com.rentalmovie.movie.models.GenreModel;
-import com.rentalmovie.movie.services.genre.GenreService;
+import com.rentalmovie.movie.services.GenreService;
 import com.rentalmovie.movie.specifications.SpecificationTemplate;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
@@ -27,13 +26,12 @@ import java.util.UUID;
 public class GenreController {
 
     @Autowired
-    private GenreService genreService;
+    GenreService genreService;
 
     @PostMapping
     public ResponseEntity<GenreModel> save(@RequestBody @Valid GenreDTO genreDTO) {
         var genreModel = new GenreModel();
         BeanUtils.copyProperties(genreDTO, genreModel);
-        genreModel.setDeleteStatus(DeleteStatus.ACTIVE);
         genreModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
         return ResponseEntity.status(HttpStatus.CREATED).body(genreService.save(genreModel));
     }
@@ -44,14 +42,14 @@ public class GenreController {
             @PageableDefault(page = 0, size = 10, sort = "genreId", direction = Sort.Direction.ASC) Pageable pageable
     ){
         Page<GenreModel> genreModelPage =
-                genreService.findAllActive(SpecificationTemplate.<GenreModel>hasActiveStatus().and(specification), pageable);
+                genreService.findAll(specification, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(genreModelPage);
     }
 
     @GetMapping("/{genreId}")
     public ResponseEntity<Object> getById(@PathVariable UUID genreId) {
-        Optional<GenreModel> genreModelOptional = genreService.findActiveById(genreId);
+        Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
         if(genreModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");
         }
@@ -60,7 +58,7 @@ public class GenreController {
 
     @PutMapping("/{genreId}")
     public ResponseEntity<Object> update(@PathVariable UUID genreId, @RequestBody @Valid GenreDTO genreDTO) {
-        Optional<GenreModel> genreModelOptional = genreService.findActiveById(genreId);
+        Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
         if(genreModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");
         }
@@ -71,13 +69,11 @@ public class GenreController {
 
     @DeleteMapping("/{genreId}")
     public ResponseEntity<Object> update(@PathVariable UUID genreId) {
-        Optional<GenreModel> genreModelOptional = genreService.findActiveById(genreId);
+        Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
         if(genreModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");
         }
-        var genreModel = genreModelOptional.get();
-        genreModel.setDeleteStatus(DeleteStatus.INACTIVE);
-        genreService.save(genreModel);
+        genreService.delete(genreModelOptional.get());
         return ResponseEntity.status(HttpStatus.OK).body("Genre deleted successfully");
     }
 }

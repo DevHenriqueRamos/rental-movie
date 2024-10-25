@@ -1,19 +1,19 @@
-package com.rentalmovie.movie.services.genre;
+package com.rentalmovie.movie.services;
 
 import com.rentalmovie.movie.models.GenreModel;
+import com.rentalmovie.movie.specifications.SpecificationTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface IGenreService {
+public interface GenreService {
     Optional<GenreModel> findById(UUID genreId);
 
     GenreModel save(GenreModel genreModel);
 
-    Page<GenreModel> findAllActive(Specification<GenreModel> specification, Pageable pageable);
+    Page<GenreModel> findAll(SpecificationTemplate.GenreSpecification specification, Pageable pageable);
 
-    Optional<GenreModel> findActiveById(UUID genreId);
+    void delete(GenreModel genreModel);
 }

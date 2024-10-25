@@ -1,9 +1,12 @@
-package com.rentalmovie.movie.services.movie;
+package com.rentalmovie.movie.services.implementations;
 
 import com.rentalmovie.movie.models.GenreModel;
 import com.rentalmovie.movie.models.MovieModel;
+import com.rentalmovie.movie.models.ProductionStudioModel;
 import com.rentalmovie.movie.repositories.MovieRepository;
-import com.rentalmovie.movie.services.genre.GenreService;
+import com.rentalmovie.movie.services.GenreService;
+import com.rentalmovie.movie.services.MovieService;
+import com.rentalmovie.movie.services.ProductionStudioService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,16 +18,22 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
-public class MovieService implements IMovieService {
+public class MovieServiceImpl implements MovieService {
 
     @Autowired
-    private MovieRepository movieRepository;
+    MovieRepository movieRepository;
 
     @Autowired
-    private GenreService genreService;
+    GenreService genreService;
+
+    @Autowired
+    ProductionStudioService productionStudioService;
 
     @Override
     public MovieModel save(MovieModel movieModel) {
@@ -54,6 +63,18 @@ public class MovieService implements IMovieService {
             return "Cannot update movie because genres not found";
         }
         movieModel.setGenres(setGenres);
+        movieModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
+        return movieRepository.save(movieModel);
+    }
+
+    @Override
+    @Transactional
+    public Object updateProductionStudio(MovieModel movieModel, UUID productionStudioId) {
+        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
+        if(productionStudioModelOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cannot update movie because production studio not found");
+        }
+        movieModel.setProductionStudio(productionStudioModelOptional.get());
         movieModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
         return movieRepository.save(movieModel);
     }

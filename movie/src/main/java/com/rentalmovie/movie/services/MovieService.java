@@ -1,4 +1,4 @@
-package com.rentalmovie.movie.services.movie;
+package com.rentalmovie.movie.services;
 
 import com.rentalmovie.movie.models.MovieModel;
 import org.springframework.data.domain.Page;
@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface IMovieService {
+public interface MovieService {
     MovieModel save(MovieModel movieModel);
 
     Optional<MovieModel> findActiveById(UUID movieId);
@@ -17,4 +17,6 @@ public interface IMovieService {
     Page<MovieModel> findAllActive(Specification<MovieModel> specification, Pageable pageable);
 
     Object updateGenres(MovieModel movieModel, Set<UUID> genreIds);
+
+    Object updateProductionStudio(MovieModel movieModel, UUID productionStudioId);
 }
