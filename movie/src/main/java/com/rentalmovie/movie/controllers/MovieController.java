@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @CrossOrigin(value = "*", maxAge = 3600)
 @RequestMapping("/movies")
@@ -62,6 +65,11 @@ public class MovieController {
             finalSpec = finalSpec.and(SpecificationTemplate.hasGenres(genreIds));
         }
         Page<MovieModel> movieModelPage = movieService.findAllActive(finalSpec, pageable);
+        if (movieModelPage.hasContent()) {
+            for (MovieModel movie : movieModelPage.getContent()) {
+                movie.add(linkTo(methodOn(MovieController.class).getById(movie.getMovieId())).withSelfRel());
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).body(movieModelPage);
     }
 

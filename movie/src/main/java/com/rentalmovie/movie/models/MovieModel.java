@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "TB_MOVIES")
-public class MovieModel implements Serializable {
+public class MovieModel extends RepresentationModel<MovieModel> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
