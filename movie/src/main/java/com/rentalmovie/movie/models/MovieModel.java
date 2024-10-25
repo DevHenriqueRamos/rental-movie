@@ -12,7 +12,9 @@ import org.hibernate.annotations.FetchMode;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Set;
 import java.util.UUID;
 
@@ -80,4 +82,8 @@ public class MovieModel extends RepresentationModel<MovieModel> implements Seria
     @ManyToOne(fetch = FetchType.LAZY)
     private ProductionStudioModel productionStudio;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<RentalPriceModel> rentalPrices;
 }
