@@ -5,19 +5,25 @@ spring:
     name: rentalmovie-api-gateway
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: authuser-service
-            uri: lb://RENTALMOVIE-AUTHUSER-SERVICE
-            predicates:
-              - Path=/rentalmovie-authuser/**
-          - id: movie-service
-            uri: lb://RENTALMOVIE-MOVIE-SERVICE
-            predicates:
-              - Path=/rentalmovie-movie/**
+      routes:
+        - id: authuser-service
+          uri: lb://RENTALMOVIE-AUTHUSER-SERVICE
+          predicates:
+            - Path=/rentalmovie-authuser/**
+        - id: movie-service
+          uri: lb://RENTALMOVIE-MOVIE-SERVICE
+          predicates:
+            - Path=/rentalmovie-movie/**
+
+rm:
+  serviceRegistry:
+    username: serviceregistry
+    password: 'rm123sr'
+
 eureka:
   client:
     service-url:
-      default-zone: 'http://localhost:8761/eureka'
+      defaultZone: 'http://${rm.serviceRegistry.username}:${rm.serviceRegistry.password}@localhost:8761/eureka'
   instance:
     hostname: localhost
+
