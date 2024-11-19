@@ -1,49 +1,24 @@
 package com.rentalmovie.authuser.services;
 
 import com.rentalmovie.authuser.models.UserModel;
-import com.rentalmovie.authuser.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
-public class UserService implements IUserService {
-    @Autowired
-    private UserRepository userRepository;
+public interface UserService {
+    List<UserModel> findAll();
 
-    @Override
-    public List<UserModel> findAll() {
-        return userRepository.findAll();
-    }
+    Optional<UserModel> findById(UUID userId);
 
-    @Override
-    public Optional<UserModel> findById(UUID userId) {
-        return userRepository.findById(userId);
-    }
+    void delete(UUID userId);
 
-    @Override
-    public void delete(UUID userId) {
-        userRepository.deleteById(userId);
-    }
+    void save(UserModel userModel);
 
-    @Override
-    public void save(UserModel userModel) {
-        userRepository.save(userModel);
-    }
+    boolean existsByEmail(String email);
 
-    @Override
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    @Override
-    public Page<UserModel> findAll(Specification<UserModel> specification, Pageable pageable) {
-        return userRepository.findAll(specification, pageable);
-    }
+    Page<UserModel> findAll(Specification<UserModel> specification, Pageable pageable);
 }
