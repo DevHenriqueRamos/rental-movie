@@ -24,6 +24,8 @@ rm:
   serviceRegistry:
     username: serviceregistry
     password: 'rm123sr'
+  auth:
+    jwtSecret: FhCH5aXYk0VGbgxQCHY9lP1cNjhO7MZH
 
 eureka:
   client:

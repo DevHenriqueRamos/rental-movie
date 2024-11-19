@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class GenreController {
     @Autowired
     GenreService genreService;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<GenreModel> save(@RequestBody @Valid GenreDTO genreDTO) {
         var genreModel = new GenreModel();
@@ -56,6 +58,7 @@ public class GenreController {
         return ResponseEntity.status(HttpStatus.OK).body(genreModelOptional.get());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{genreId}")
     public ResponseEntity<Object> update(@PathVariable UUID genreId, @RequestBody @Valid GenreDTO genreDTO) {
         Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
@@ -67,8 +70,9 @@ public class GenreController {
         return ResponseEntity.status(HttpStatus.OK).body(genreService.save(productionStudioModel));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{genreId}")
-    public ResponseEntity<Object> update(@PathVariable UUID genreId) {
+    public ResponseEntity<Object> delete(@PathVariable UUID genreId) {
         Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
         if(genreModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");

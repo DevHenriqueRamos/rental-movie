@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,7 @@ public class MovieController {
     @Autowired
     MovieService movieService;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<MovieModel> save(
             @RequestBody
@@ -82,6 +84,7 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(movieModelOptional.get());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{movieId}")
     public ResponseEntity<Object> updateMovie(
             @PathVariable UUID movieId,
@@ -100,6 +103,7 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(movieService.save(movieModel));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{movieId}/production-studio/{productionStudioId}")
     public ResponseEntity<Object> updateProductionStudio(
             @PathVariable UUID movieId,
@@ -113,8 +117,9 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(movieService.updateProductionStudio(movieModel, productionStudioId));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{movieId}/genres")
-    public ResponseEntity<Object> updateProductionStudio(
+    public ResponseEntity<Object> updateGenres(
             @PathVariable UUID movieId,
             @RequestBody
             @Validated(MovieDTO.MovieView.GenresPut.class)
@@ -133,6 +138,7 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(movieService.updateGenres(movieModelOptional.get(), movieDTO.getGenres()));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{movieId}")
     public ResponseEntity<Object> delete(@PathVariable UUID movieId) {
         Optional<MovieModel> movieModelOptional = movieService.findActiveById(movieId);

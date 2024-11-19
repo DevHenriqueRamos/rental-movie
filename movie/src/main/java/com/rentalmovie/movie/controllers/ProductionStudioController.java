@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class ProductionStudioController {
     @Autowired
     ProductionStudioService productionStudioService;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductionStudioModel> save(@RequestBody @Valid ProductionStudioDTO productionStudioDTO ){
         var productionStudioModel = new ProductionStudioModel();
@@ -56,6 +58,7 @@ public class ProductionStudioController {
         return ResponseEntity.status(HttpStatus.OK).body(productionStudioModelOptional.get());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{productionStudioId}")
     public ResponseEntity<Object> update(@PathVariable UUID productionStudioId, @RequestBody @Valid ProductionStudioDTO productionStudioDTO) {
         Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
@@ -67,8 +70,9 @@ public class ProductionStudioController {
         return ResponseEntity.status(HttpStatus.OK).body(productionStudioService.save(productionStudioModel));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{productionStudioId}")
-    public ResponseEntity<Object> update(@PathVariable UUID productionStudioId) {
+    public ResponseEntity<Object> delete(@PathVariable UUID productionStudioId) {
         Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
         if(productionStudioModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
