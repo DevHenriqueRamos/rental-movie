@@ -1,0 +1,25 @@
+server:
+  port: 8083
+  servlet:
+    context-path: "/rentalmovie-order/"
+
+spring:
+  application:
+    name: rentalmovie-order-service
+  data:
+    mongodb:
+      uri: mongodb+srv://rental-movie:ThvhYLeejbw2Ynpg@cluster0.niqzi.mongodb.net/order_service
+
+rm:
+  serviceRegistry:
+    username: serviceregistry
+    password: 'rm123sr'
+  auth:
+    jwtSecret: FhCH5aXYk0VGbgxQCHY9lP1cNjhO7MZH
+
+eureka:
+  client:
+    service-url:
+      defaultZone: 'http://${rm.serviceRegistry.username}:${rm.serviceRegistry.password}@localhost:8761/eureka'
+  instance:
+    hostname: localhost
