@@ -1,23 +1,25 @@
 package com.rentalmovie.authuser.services.impl;
 
+import com.rentalmovie.authuser.exceptions.ResourceNotFoundException;
 import com.rentalmovie.authuser.models.UserModel;
 import com.rentalmovie.authuser.repositories.UserRepository;
 import com.rentalmovie.authuser.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<UserModel> findAll() {
@@ -25,18 +27,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserModel> findById(UUID userId) {
-        return userRepository.findById(userId);
+    public UserModel findById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(()-> new ResourceNotFoundException("Any user found with userId: " + userId));
     }
 
     @Override
     public void delete(UUID userId) {
+        findById(userId);
         userRepository.deleteById(userId);
     }
 
     @Override
-    public void save(UserModel userModel) {
-        userRepository.save(userModel);
+    public UserModel save(UserModel userModel) {
+        return userRepository.save(userModel);
     }
 
     @Override

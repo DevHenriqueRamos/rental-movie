@@ -1,9 +1,6 @@
 package com.rentalmovie.authuser.config.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
@@ -25,7 +22,7 @@ public class JwtProvider {
 
     @Value("${rm.auth.jwtSecret}")
     private String jwtSecret;
-    @Value("${rm.auth.jwtExpirationMs}")
+    @Value("${rm.auth.jwtExpirationMs}") // 15 minutes
     private int jwtExpirationMs;
 
     private SecretKey key;
@@ -56,16 +53,8 @@ public class JwtProvider {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(authToken);
             return true;
-        } catch (SignatureException e) {
-            log.error("Invalid JWT signature: {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
+        } catch (SignatureException | IllegalArgumentException e) {
+            log.error("JWT validation error: {}", e.getMessage());
         }
         return false;
     }

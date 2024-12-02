@@ -1,8 +1,10 @@
 package com.rentalmovie.authuser.config.security;
 
-import java.io.IOException;
-import java.util.UUID;
-
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,11 +13,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j2;
+import java.io.IOException;
+import java.util.UUID;
 
 @Log4j2
 public class AuthenticationJwtFilter extends OncePerRequestFilter {
@@ -31,11 +30,12 @@ public class AuthenticationJwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwtStr = getTokenHeader(request);
-            if (jwtStr != null && jwtProvider.validateJwt(jwtStr)) {
+            if (isValidToken(jwtStr)) {
                 String userId = jwtProvider.getSubjectJwt(jwtStr);
                 UserDetails userDetails = userDetailsService.loadUserByUserId(UUID.fromString(userId));
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                        userDetails, null, userDetails.getAuthorities()
+                );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -45,11 +45,12 @@ public class AuthenticationJwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private boolean isValidToken(String jwtStr) {
+        return jwtStr != null && jwtProvider.validateJwt(jwtStr);
+    }
+
     private String getTokenHeader(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
-        }
-        return null;
+        return StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ") ? headerAuth.substring(7) : null;
     }
 }
