@@ -49,7 +49,8 @@ public class MovieController {
         movieModel.setDeleteStatus(DeleteStatus.ACTIVE);
         movieModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
         movieModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
-        return ResponseEntity.status(HttpStatus.CREATED).body(movieService.save(movieModel));
+        movieModel.addRentalPrice(movieDTO.getPrice());
+        return ResponseEntity.status(HttpStatus.CREATED).body(movieService.saveMovie(movieModel));
     }
 
     @GetMapping
@@ -100,7 +101,7 @@ public class MovieController {
         MovieModel movieModel = movieModelOptional.get();
         BeanUtils.copyProperties(movieDTO, movieModel);
         movieModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
-        return ResponseEntity.status(HttpStatus.OK).body(movieService.save(movieModel));
+        return ResponseEntity.status(HttpStatus.OK).body(movieService.updateMovie(movieModel));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")

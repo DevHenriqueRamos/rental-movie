@@ -3,18 +3,24 @@ package com.rentalmovie.movie.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rentalmovie.movie.dtos.MovieEventDTO;
 import com.rentalmovie.movie.enums.DeleteStatus;
 import jakarta.persistence.*;
+import jakarta.ws.rs.NotFoundException;
 import lombok.Data;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.beans.BeanUtils;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -83,7 +89,22 @@ public class MovieModel extends RepresentationModel<MovieModel> implements Seria
     private ProductionStudioModel productionStudio;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY)
-    @Fetch(FetchMode.SUBSELECT)
-    private Set<RentalPriceModel> rentalPrices;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RentalPriceModel> rentalPrices = new HashSet<>();
+
+    public MovieEventDTO convertToMovieEventDTO() {
+        var movieEventDTO = new MovieEventDTO();
+        BeanUtils.copyProperties(this, movieEventDTO);
+        RentalPriceModel rentalPriceModel = this.rentalPrices.stream().max(Comparator.comparing(RentalPriceModel::getCreationDate))
+                .orElseThrow(() -> new NotFoundException("Anyone price to this movie found."));
+        movieEventDTO.setPrice(rentalPriceModel.getPrice());
+        return movieEventDTO;
+    }
+
+    public void addRentalPrice(BigDecimal price) {
+        var rentalPriceModel = new RentalPriceModel();
+        rentalPriceModel.setPrice(price);
+        rentalPriceModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
+        this.rentalPrices.add(rentalPriceModel);
+    }
 }

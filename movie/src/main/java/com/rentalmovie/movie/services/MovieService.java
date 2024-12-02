@@ -19,4 +19,10 @@ public interface MovieService {
     Object updateGenres(MovieModel movieModel, Set<UUID> genreIds);
 
     Object updateProductionStudio(MovieModel movieModel, UUID productionStudioId);
+
+    MovieModel saveMovie(MovieModel movieModel);
+
+    MovieModel updateMovie(MovieModel movieModel);
+
+    void deleteMovie(MovieModel movieModel);
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,4 +57,8 @@ public class MovieDTO {
     
     @JsonView({MovieView.GenresPut.class})
     private Set<UUID> genres;
+
+    @NotNull(groups = {MovieView.RegistrationPost.class})
+    @JsonView({MovieView.RegistrationPost.class})
+    private BigDecimal price;
 }

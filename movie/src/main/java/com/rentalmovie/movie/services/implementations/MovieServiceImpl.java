@@ -1,8 +1,10 @@
 package com.rentalmovie.movie.services.implementations;
 
+import com.rentalmovie.movie.enums.ActionType;
 import com.rentalmovie.movie.models.GenreModel;
 import com.rentalmovie.movie.models.MovieModel;
 import com.rentalmovie.movie.models.ProductionStudioModel;
+import com.rentalmovie.movie.publishers.MovieEventPublisher;
 import com.rentalmovie.movie.repositories.MovieRepository;
 import com.rentalmovie.movie.services.GenreService;
 import com.rentalmovie.movie.services.MovieService;
@@ -34,6 +36,9 @@ public class MovieServiceImpl implements MovieService {
 
     @Autowired
     ProductionStudioService productionStudioService;
+
+    @Autowired
+    MovieEventPublisher movieEventPublisher;
 
     @Override
     public MovieModel save(MovieModel movieModel) {
@@ -77,5 +82,29 @@ public class MovieServiceImpl implements MovieService {
         movieModel.setProductionStudio(productionStudioModelOptional.get());
         movieModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
         return movieRepository.save(movieModel);
+    }
+
+
+    @Override
+    @Transactional
+    public MovieModel saveMovie(MovieModel movieModel) {
+        movieModel = save(movieModel);
+        movieEventPublisher.publishMovieEvent(movieModel.convertToMovieEventDTO(), ActionType.CREATE);
+        return movieModel;
+    }
+
+    @Override
+    @Transactional
+    public MovieModel updateMovie(MovieModel movieModel) {
+        movieModel = save(movieModel);
+        movieEventPublisher.publishMovieEvent(movieModel.convertToMovieEventDTO(), ActionType.UPDATE);
+        return movieModel;
+    }
+
+    @Override
+    @Transactional
+    public void deleteMovie(MovieModel movieModel) {
+        movieModel = save(movieModel);
+        movieEventPublisher.publishMovieEvent(movieModel.convertToMovieEventDTO(), ActionType.DELETE);
     }
 }

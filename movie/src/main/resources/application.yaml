@@ -19,6 +19,8 @@ spring:
     properties:
       hibernate:
         show_sql: true
+  rabbitmq:
+    addresses: amqps://gbimmzju:nPK0GlETN9u2uK8dHu5bsipBifzVe7Vi@beaver.rmq.cloudamqp.com/gbimmzju
 
 rm:
   serviceRegistry:
@@ -26,6 +28,9 @@ rm:
     password: 'rm123sr'
   auth:
     jwtSecret: FhCH5aXYk0VGbgxQCHY9lP1cNjhO7MZH
+  broker:
+    exchange:
+      movieEvent: rm.movieevent
 
 eureka:
   client:
