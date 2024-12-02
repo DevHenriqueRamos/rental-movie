@@ -29,4 +29,14 @@ public class MovieServiceImpl implements MovieService {
                 .flatMap(Optional::stream)
                 .collect(Collectors.toSet());
     }
+
+    @Override
+    public MovieModel save(MovieModel movieModel) {
+        return movieRepository.save(movieModel);
+    }
+
+    @Override
+    public void delete(MovieModel movieModel) {
+        movieRepository.delete(movieModel);
+    }
 }

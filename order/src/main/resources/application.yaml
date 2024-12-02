@@ -9,6 +9,8 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://rental-movie:ThvhYLeejbw2Ynpg@cluster0.niqzi.mongodb.net/order_service
+  rabbitmq:
+    addresses: amqps://gbimmzju:nPK0GlETN9u2uK8dHu5bsipBifzVe7Vi@beaver.rmq.cloudamqp.com/gbimmzju
 
 rm:
   serviceRegistry:
@@ -16,6 +18,12 @@ rm:
     password: 'rm123sr'
   auth:
     jwtSecret: FhCH5aXYk0VGbgxQCHY9lP1cNjhO7MZH
+  broker:
+    exchange:
+      movieEventExchange: rm.movieevent
+    queue:
+      movieEventQueue:
+        name: rm.movieevent.ms.order
 
 eureka:
   client:
