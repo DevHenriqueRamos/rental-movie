@@ -6,7 +6,6 @@ import com.rentalmovie.movie.services.GenreService;
 import com.rentalmovie.movie.specifications.SpecificationTemplate;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,16 +17,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.UUID;
+
+import static com.rentalmovie.movie.utils.ResponseUtils.createMessageResponse;
 
 @RestController
 @CrossOrigin(value = "*", maxAge = 3600)
 @RequestMapping("/genres")
 public class GenreController {
 
-    @Autowired
-    GenreService genreService;
+    private final GenreService genreService;
+
+    public GenreController(GenreService genreService) {
+        this.genreService = genreService;
+    }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
@@ -38,10 +41,11 @@ public class GenreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(genreService.save(genreModel));
     }
 
+    @PreAuthorize("hasAnyRole('CONSUMER')")
     @GetMapping
-    public ResponseEntity<Page<GenreModel>> findAll(
+    public ResponseEntity<Page<GenreModel>> getAll(
             SpecificationTemplate.GenreSpecification specification,
-            @PageableDefault(page = 0, size = 10, sort = "genreId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(sort = "genreId", direction = Sort.Direction.ASC) Pageable pageable
     ){
         Page<GenreModel> genreModelPage =
                 genreService.findAll(specification, pageable);
@@ -49,35 +53,26 @@ public class GenreController {
         return ResponseEntity.status(HttpStatus.OK).body(genreModelPage);
     }
 
+    @PreAuthorize("hasAnyRole('CONSUMER')")
     @GetMapping("/{genreId}")
     public ResponseEntity<Object> getById(@PathVariable UUID genreId) {
-        Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
-        if(genreModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(genreModelOptional.get());
+        GenreModel genreModel = genreService.findById(genreId);
+        return ResponseEntity.status(HttpStatus.OK).body(genreModel);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/{genreId}")
+    @PutMapping("/update/{genreId}")
     public ResponseEntity<Object> update(@PathVariable UUID genreId, @RequestBody @Valid GenreDTO genreDTO) {
-        Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
-        if(genreModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");
-        }
-        var productionStudioModel = genreModelOptional.get();
-        BeanUtils.copyProperties(genreDTO, productionStudioModel);
-        return ResponseEntity.status(HttpStatus.OK).body(genreService.save(productionStudioModel));
+        GenreModel genreModel = genreService.findById(genreId);
+        BeanUtils.copyProperties(genreDTO, genreModel);
+        return ResponseEntity.status(HttpStatus.OK).body(genreService.save(genreModel));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{genreId}")
+    @DeleteMapping("/delete/{genreId}")
     public ResponseEntity<Object> delete(@PathVariable UUID genreId) {
-        Optional<GenreModel> genreModelOptional = genreService.findById(genreId);
-        if(genreModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Genre not found");
-        }
-        genreService.delete(genreModelOptional.get());
-        return ResponseEntity.status(HttpStatus.OK).body("Genre deleted successfully");
+        GenreModel genreModel = genreService.findById(genreId);
+        genreService.delete(genreModel);
+        return ResponseEntity.status(HttpStatus.OK).body(createMessageResponse("Genre deleted successfully"));
     }
 }

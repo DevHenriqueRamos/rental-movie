@@ -6,7 +6,6 @@ import com.rentalmovie.movie.services.ProductionStudioService;
 import com.rentalmovie.movie.specifications.SpecificationTemplate;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,16 +17,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.UUID;
+
+import static com.rentalmovie.movie.utils.ResponseUtils.createMessageResponse;
 
 @RestController
 @CrossOrigin(value = "*", maxAge = 3600)
 @RequestMapping("/production-studios")
 public class ProductionStudioController {
 
-    @Autowired
-    ProductionStudioService productionStudioService;
+    private final ProductionStudioService productionStudioService;
+
+    public ProductionStudioController(ProductionStudioService productionStudioService) {
+        this.productionStudioService = productionStudioService;
+    }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
@@ -38,10 +41,11 @@ public class ProductionStudioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productionStudioService.save(productionStudioModel));
     }
 
+    @PreAuthorize("hasAnyRole('CONSUMER')")
     @GetMapping
-    public ResponseEntity<Page<ProductionStudioModel>> findAll(
+    public ResponseEntity<Page<ProductionStudioModel>> getAll(
             SpecificationTemplate.ProductionStudioSpecification specification,
-            @PageableDefault(page = 0, size = 10, sort = "productionStudioId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(sort = "productionStudioId", direction = Sort.Direction.ASC) Pageable pageable
     ){
         Page<ProductionStudioModel> productionStudioModelPage =
                 productionStudioService.findAll(specification, pageable);
@@ -49,35 +53,26 @@ public class ProductionStudioController {
         return ResponseEntity.status(HttpStatus.OK).body(productionStudioModelPage);
     }
 
+    @PreAuthorize("hasAnyRole('CONSUMER')")
     @GetMapping("/{productionStudioId}")
     public ResponseEntity<Object> getById(@PathVariable UUID productionStudioId) {
-        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
-        if(productionStudioModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(productionStudioModelOptional.get());
+        ProductionStudioModel productionStudioModel = productionStudioService.findById(productionStudioId);
+        return ResponseEntity.status(HttpStatus.OK).body(productionStudioModel);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/{productionStudioId}")
+    @PutMapping("/update/{productionStudioId}")
     public ResponseEntity<Object> update(@PathVariable UUID productionStudioId, @RequestBody @Valid ProductionStudioDTO productionStudioDTO) {
-        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
-        if(productionStudioModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
-        }
-        var productionStudioModel = productionStudioModelOptional.get();
+        ProductionStudioModel productionStudioModel = productionStudioService.findById(productionStudioId);
         BeanUtils.copyProperties(productionStudioDTO, productionStudioModel);
         return ResponseEntity.status(HttpStatus.OK).body(productionStudioService.save(productionStudioModel));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{productionStudioId}")
+    @DeleteMapping("/delete/{productionStudioId}")
     public ResponseEntity<Object> delete(@PathVariable UUID productionStudioId) {
-        Optional<ProductionStudioModel> productionStudioModelOptional = productionStudioService.findById(productionStudioId);
-        if(productionStudioModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Production studio not found");
-        }
-        productionStudioService.delete(productionStudioModelOptional.get());
-        return ResponseEntity.status(HttpStatus.OK).body("Production studio deleted successfully");
+        ProductionStudioModel productionStudioModel = productionStudioService.findById(productionStudioId);
+        productionStudioService.delete(productionStudioModel);
+        return ResponseEntity.status(HttpStatus.OK).body(createMessageResponse("Production studio deleted successfully"));
     }
 }

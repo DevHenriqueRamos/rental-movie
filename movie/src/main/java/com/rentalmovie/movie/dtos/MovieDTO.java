@@ -15,9 +15,10 @@ import java.util.UUID;
 public class MovieDTO {
 
     public interface MovieView {
-        public static interface RegistrationPost {}
-        public static interface MoviePut {}
-        public static interface GenresPut {}
+        interface RegistrationPost {}
+        interface MoviePut {}
+        interface GenresPut {}
+        interface PricePut {}
 
     }
 
@@ -54,11 +55,12 @@ public class MovieDTO {
     @NotBlank(groups = {MovieView.RegistrationPost.class, MovieView.MoviePut.class})
     @JsonView({MovieView.RegistrationPost.class, MovieView.MoviePut.class})
     private String movieUrl;
-    
+
+    @NotNull(groups = MovieView.GenresPut.class)
     @JsonView({MovieView.GenresPut.class})
     private Set<UUID> genres;
 
-    @NotNull(groups = {MovieView.RegistrationPost.class})
-    @JsonView({MovieView.RegistrationPost.class})
+    @NotNull(groups = {MovieView.RegistrationPost.class, MovieView.PricePut.class})
+    @JsonView({MovieView.RegistrationPost.class, MovieView.PricePut.class})
     private BigDecimal price;
 }

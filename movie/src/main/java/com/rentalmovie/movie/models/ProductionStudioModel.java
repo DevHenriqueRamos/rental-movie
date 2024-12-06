@@ -3,7 +3,6 @@ package com.rentalmovie.movie.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rentalmovie.movie.enums.DeleteStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Fetch;

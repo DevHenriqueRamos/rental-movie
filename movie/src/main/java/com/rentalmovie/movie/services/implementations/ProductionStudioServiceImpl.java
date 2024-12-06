@@ -1,26 +1,29 @@
 package com.rentalmovie.movie.services.implementations;
 
+import com.rentalmovie.movie.exceptions.ResourceNotFoundException;
 import com.rentalmovie.movie.models.ProductionStudioModel;
 import com.rentalmovie.movie.repositories.ProductionStudioRepository;
 import com.rentalmovie.movie.services.ProductionStudioService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class ProductionStudioServiceImpl implements ProductionStudioService {
 
-    @Autowired
-    ProductionStudioRepository productionStudioRepository;
+    private final ProductionStudioRepository productionStudioRepository;
+
+    public ProductionStudioServiceImpl(ProductionStudioRepository productionStudioRepository) {
+        this.productionStudioRepository = productionStudioRepository;
+    }
 
     @Override
-    public Optional<ProductionStudioModel> findById(UUID productionStudioId) {
-        return productionStudioRepository.findById(productionStudioId);
+    public ProductionStudioModel findById(UUID productionStudioId) {
+        return productionStudioRepository.findById(productionStudioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Production studio not found with id: " + productionStudioId));
     }
 
     @Override

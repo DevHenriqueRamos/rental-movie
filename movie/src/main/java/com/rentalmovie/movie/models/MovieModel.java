@@ -3,13 +3,13 @@ package com.rentalmovie.movie.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rentalmovie.movie.dtos.MovieEventDTO;
 import com.rentalmovie.movie.enums.DeleteStatus;
+import com.rentalmovie.movie.exceptions.ResourceNotFoundException;
 import jakarta.persistence.*;
-import jakarta.ws.rs.NotFoundException;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.beans.BeanUtils;
@@ -82,7 +82,7 @@ public class MovieModel extends RepresentationModel<MovieModel> implements Seria
             inverseJoinColumns = {@JoinColumn(name = "genre_id")}
     )
     @Fetch(FetchMode.SUBSELECT)
-    private Set<GenreModel> genres;
+    private Set<GenreModel> genres = new HashSet<>();
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -96,7 +96,7 @@ public class MovieModel extends RepresentationModel<MovieModel> implements Seria
         var movieEventDTO = new MovieEventDTO();
         BeanUtils.copyProperties(this, movieEventDTO);
         RentalPriceModel rentalPriceModel = this.rentalPrices.stream().max(Comparator.comparing(RentalPriceModel::getCreationDate))
-                .orElseThrow(() -> new NotFoundException("Anyone price to this movie found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Anyone price to this movie found."));
         movieEventDTO.setPrice(rentalPriceModel.getPrice());
         return movieEventDTO;
     }
