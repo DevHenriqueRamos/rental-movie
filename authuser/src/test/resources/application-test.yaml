@@ -6,6 +6,14 @@ spring:
     hibernate:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
+  cloud:
+    config:
+      enabled: false
+
+rm:
+  auth:
+    jwtSecret: 88c0dfeab9520b2e50cfa2d407ed0914764ac6e8fd524aa3e82b9f37268bbcc3
+    jwtExpirationMs: 60000
 
 eureka:
   client:
