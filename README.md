@@ -10,7 +10,7 @@ O **Movie Rental** é uma aplicação completa para aluguel de filmes, projetada
 1. [Sobre o Projeto](#sobre-o-projeto)
 2. [Tecnologias Utilizadas](#tecnologias-utilizadas)
 3. [Funcionalidades](#funcionalidades)
-4. [Experiência](#experiencia)
+4. [Experiência](#experiência)
 
 ---
 
@@ -59,3 +59,5 @@ Este projeto foi criado para demonstrar minha capacidade de trabalhar com micros
 ## Experiência
 
 O **Movie Rental** foi um projeto que teve seus altos e baixos, mas, sem dúvidas, me trouxe muito conhecimento. Ter que lidar com várias aplicações rodando ao mesmo tempo e se comunicando entre si me ensinou lições que seriam difíceis de aprender com algo mais simples. Criar esse projeto do zero e mantê-lo até o fim me mostrou a importância de um código limpo e bem estruturado, da segurança da aplicação, da comunicação por eventos, do tratamento de exceções, entre outros aspectos. Mas, principalmente, o que mais levo desse projeto é a certeza de que estou pronto para assumir um desafio ainda maior.
+
+---
