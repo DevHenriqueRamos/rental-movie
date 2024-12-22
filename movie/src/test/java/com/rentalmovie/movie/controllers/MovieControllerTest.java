@@ -1,10 +1,13 @@
 package com.rentalmovie.movie.controllers;
 
+import com.rentalmovie.movie.dtos.MovieEventDTO;
+import com.rentalmovie.movie.enums.ActionType;
 import com.rentalmovie.movie.enums.DeleteStatus;
 import com.rentalmovie.movie.models.GenreModel;
 import com.rentalmovie.movie.models.MovieModel;
 import com.rentalmovie.movie.models.ProductionStudioModel;
 import com.rentalmovie.movie.models.RentalPriceModel;
+import com.rentalmovie.movie.publishers.MovieEventPublisher;
 import com.rentalmovie.movie.repositories.GenreRepository;
 import com.rentalmovie.movie.repositories.MovieRepository;
 import com.rentalmovie.movie.repositories.ProductionStudioRepository;
@@ -13,16 +16,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.rentalmovie.movie.testutils.JwtTokenUtil.generateToken;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,6 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ActiveProfiles("test")
 class MovieControllerTest {
+
+    @MockitoBean
+    private MovieEventPublisher movieEventPublisher;
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,7 +60,6 @@ class MovieControllerTest {
 
     private ProductionStudioModel generateProductionStudioModel() {
         ProductionStudioModel productionStudioModel = new ProductionStudioModel();
-        productionStudioModel.setProductionStudioId(UUID.randomUUID());
         productionStudioModel.setName("Production Studio test");
         productionStudioModel.setDescription("Production studio description test");
         productionStudioModel.setCreationDate(LocalDateTime.now());
@@ -57,7 +68,6 @@ class MovieControllerTest {
 
     private GenreModel generateGenreModel() {
         GenreModel genreModel = new GenreModel();
-        genreModel.setGenreId(UUID.randomUUID());
         genreModel.setName("Genre test");
         genreModel.setDescription("Genre description test");
         genreModel.setCreationDate(LocalDateTime.now());
@@ -66,7 +76,6 @@ class MovieControllerTest {
 
     private MovieModel generateMovie() {
         final var movieModel = new MovieModel();
-        movieModel.setMovieId(UUID.randomUUID());
         movieModel.setDeleteStatus(DeleteStatus.ACTIVE);
         movieModel.setOriginalTitle("Movie title");
         movieModel.setTranslateTitle("Movie title translate");
@@ -138,6 +147,8 @@ class MovieControllerTest {
 
     @Test
     void saveTest_HappyPath() throws Exception {
+        doNothing().when(movieEventPublisher).publishMovieEvent(any(MovieEventDTO.class), any(ActionType.class));
+
         String token = "Bearer " + generateToken(UUID.randomUUID().toString(), "ROLE_ADMIN", 60000);
 
         String movieDTO = """
@@ -199,6 +210,7 @@ class MovieControllerTest {
 
     @Test
     void updateMovieTest_HappyPath() throws Exception {
+        doNothing().when(movieEventPublisher).publishMovieEvent(any(MovieEventDTO.class), any(ActionType.class));
         final var movieModel = generateMovie();
         String token = "Bearer " + generateToken(UUID.randomUUID().toString(), "ROLE_ADMIN", 60000);
 
@@ -348,6 +360,7 @@ class MovieControllerTest {
 
     @Test
     void updatePriceTest_HappyPath() throws Exception {
+        doNothing().when(movieEventPublisher).publishMovieEvent(any(MovieEventDTO.class), any(ActionType.class));
         final var movieModel = generateMovie();
 
         String token = "Bearer " + generateToken(UUID.randomUUID().toString(), "ROLE_ADMIN", 60000);
@@ -383,6 +396,7 @@ class MovieControllerTest {
 
     @Test
     void deleteTest_HappyPath() throws Exception {
+        doNothing().when(movieEventPublisher).publishMovieEvent(any(MovieEventDTO.class), any(ActionType.class));
         final var movieModel = generateMovie();
         String token = "Bearer " + generateToken(UUID.randomUUID().toString(), "ROLE_ADMIN", 60000);
 

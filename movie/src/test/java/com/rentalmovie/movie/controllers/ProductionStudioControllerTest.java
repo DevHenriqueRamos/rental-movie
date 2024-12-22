@@ -35,7 +35,6 @@ class ProductionStudioControllerTest {
 
     private ProductionStudioModel createProductionStudioModel(String productionStudioName) {
         final var productionStudioModel = new ProductionStudioModel();
-        productionStudioModel.setProductionStudioId(UUID.randomUUID());
         productionStudioModel.setName(productionStudioName);
         productionStudioModel.setDescription("Production studio test description");
         productionStudioModel.setCreationDate(LocalDateTime.now());

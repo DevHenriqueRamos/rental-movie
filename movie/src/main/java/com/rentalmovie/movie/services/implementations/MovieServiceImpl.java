@@ -18,9 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieServiceImpl implements MovieService {
@@ -100,5 +99,13 @@ public class MovieServiceImpl implements MovieService {
     public void deleteMovie(MovieModel movieModel) {
         movieModel = save(movieModel);
         movieEventPublisher.publishMovieEvent(movieModel.convertToMovieEventDTO(), ActionType.DELETE);
+    }
+
+    @Override
+    public List<MovieModel> findAllUserRentalMovies(List<UUID> movieIds) {
+        return movieIds.stream()
+                .map(movieId -> movieRepository.findById(movieId).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

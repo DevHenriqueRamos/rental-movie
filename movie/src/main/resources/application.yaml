@@ -1,40 +1,5 @@
-server:
-  port: 8082
-  servlet:
-    context-path: '/rentalmovie-movie/'
-
 spring:
+  profiles:
+    active: dev
   application:
     name: rentalmovie-movie-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/movie
-    username: postgres
-    password: admin
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      jdbc:
-        lob.non-contextual-creation: true
-    properties:
-      hibernate:
-        show_sql: true
-  rabbitmq:
-    addresses: amqps://gbimmzju:nPK0GlETN9u2uK8dHu5bsipBifzVe7Vi@beaver.rmq.cloudamqp.com/gbimmzju
-
-rm:
-  serviceRegistry:
-    username: serviceregistry
-    password: 'rm123sr'
-  auth:
-    jwtSecret: FhCH5aXYk0VGbgxQCHY9lP1cNjhO7MZH
-  broker:
-    exchange:
-      movieEvent: rm.movieevent
-
-eureka:
-  client:
-    service-url:
-      defaultZone: 'http://${rm.serviceRegistry.username}:${rm.serviceRegistry.password}@localhost:8761/eureka'
-  instance:
-    hostname: localhost

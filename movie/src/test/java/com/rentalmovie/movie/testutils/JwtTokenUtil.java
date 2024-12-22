@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class JwtTokenUtil {
 
-    private static final Key SECRET_KEY = Keys.hmacShaKeyFor("FhCH5aXYk0VGbgxQCHY9lP1cNjhO7MZH".getBytes());
+    private static final Key SECRET_KEY = Keys.hmacShaKeyFor("88c0dfeab9520b2e50cfa2d407ed0914764ac6e8fd524aa3e82b9f37268bbcc3".getBytes());
 
     public static String generateToken(String subject, String roles, long expirationMillis) {
         return Jwts.builder()

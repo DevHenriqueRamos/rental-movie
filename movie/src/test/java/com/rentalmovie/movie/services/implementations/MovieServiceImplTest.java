@@ -201,4 +201,16 @@ class MovieServiceImplTest {
         verify(movieEventPublisher, times(1)).publishMovieEvent(movieModel.convertToMovieEventDTO(), ActionType.DELETE);
     }
 
+    @Test
+    void findAllUserRentalMoviesTest_HappyPath() {
+        when(movieRepository.findById(any(UUID.class))).thenReturn(Optional.of(generateMovie()));
+
+        final var listMovieModel = movieService.findAllUserRentalMovies(List.of(UUID.randomUUID()));
+        assertNotNull(listMovieModel);
+        assertEquals(MovieModel.class, listMovieModel.getFirst().getClass());
+        assertEquals(1, listMovieModel.size());
+
+        verify(movieRepository, times(1)).findById(any(UUID.class));
+    }
+
 }

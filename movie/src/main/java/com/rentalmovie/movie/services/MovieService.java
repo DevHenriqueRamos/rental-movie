@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,4 +25,6 @@ public interface MovieService {
     MovieModel updateMovie(MovieModel movieModel);
 
     void deleteMovie(MovieModel movieModel);
+
+    List<MovieModel> findAllUserRentalMovies(List<UUID> movieIds);
 }

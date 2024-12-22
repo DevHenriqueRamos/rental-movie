@@ -1,4 +1,9 @@
 spring:
+  rabbitmq:
+    enabled
+  cloud:
+    config:
+      enabled: false
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -12,3 +17,10 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
     enabled: false
+
+rm:
+  broker:
+    exchange:
+      movieEvent: test.event
+  auth:
+    jwtSecret: 88c0dfeab9520b2e50cfa2d407ed0914764ac6e8fd524aa3e82b9f37268bbcc3

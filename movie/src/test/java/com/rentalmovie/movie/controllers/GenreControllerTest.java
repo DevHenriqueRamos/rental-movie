@@ -35,7 +35,6 @@ class GenreControllerTest {
 
     private GenreModel createGenreModel(String genreName) {
         final var genreModel = new GenreModel();
-        genreModel.setGenreId(UUID.randomUUID());
         genreModel.setName(genreName);
         genreModel.setDescription("Genre test description");
         genreModel.setCreationDate(LocalDateTime.now());
