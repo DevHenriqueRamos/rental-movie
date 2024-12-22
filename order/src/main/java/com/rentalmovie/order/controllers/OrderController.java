@@ -7,7 +7,6 @@ import com.rentalmovie.order.models.MovieModel;
 import com.rentalmovie.order.models.OrderModel;
 import com.rentalmovie.order.services.MovieService;
 import com.rentalmovie.order.services.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,31 +23,40 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.rentalmovie.order.utils.ResponseUtils.createMessageResponse;
+
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/orders")
 public class OrderController {
 
-    @Autowired
-    OrderService orderService;
+    private final OrderService orderService;
 
-    @Autowired
-    MovieService movieService;
+    private final MovieService movieService;
 
-    @Autowired
-    AuthenticationCurrentUserService authenticationCurrentUserService;
+    private final AuthenticationCurrentUserService authenticationCurrentUserService;
+
+    public OrderController(OrderService orderService, MovieService movieService, AuthenticationCurrentUserService authenticationCurrentUserService) {
+        this.orderService = orderService;
+        this.movieService = movieService;
+        this.authenticationCurrentUserService = authenticationCurrentUserService;
+    }
 
     @PreAuthorize("hasAnyRole('CONSUMER')")
     @PostMapping
     public ResponseEntity<Object> createOrder(@RequestBody OrderDTO orderDTO) {
         UUID userId = authenticationCurrentUserService.getCurrentUser().getUserId();
+
+        if (verifyIfAlreadyInProgressOrderToUser(userId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(createMessageResponse("Already in progress order to this user!"));
+        }
+
         Set<MovieModel> movieModelSet = movieService.getMovieSet(orderDTO.getMoviesIds());
         if (movieModelSet.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movies not found!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createMessageResponse("Movies not found!"));
         }
-        BigDecimal totalPrice = movieModelSet.stream()
-                .map(MovieModel::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalPrice = calculateTotalPrice(movieModelSet);
 
         OrderModel orderModel = new OrderModel();
         orderModel.setUserId(userId);
@@ -56,13 +64,26 @@ public class OrderController {
         orderModel.setTotalPrice(totalPrice);
         orderModel.setStatus(OrderStatus.IN_PROGRESS);
         orderModel.setCreatedAt(LocalDateTime.now(ZoneId.of("UTC")));
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.save(orderModel));
+
+        OrderModel processedOrder = orderService.processOrder(orderModel, orderDTO.getPaymentMethodId());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(processedOrder);
+    }
+
+    private boolean verifyIfAlreadyInProgressOrderToUser(UUID userId) {
+        Optional<OrderModel> inProgressOrderModel = orderService.findLastUserOrder(userId);
+        return inProgressOrderModel.isPresent() && inProgressOrderModel.get().getStatus().equals(OrderStatus.IN_PROGRESS);
+    }
+
+    private BigDecimal calculateTotalPrice(Set<MovieModel> movieModelSet) {
+        return movieModelSet.stream()
+                .map(MovieModel::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @PreAuthorize("hasAnyRole('CONSUMER')")
     @GetMapping
     public ResponseEntity<Page<OrderModel>> getAllOrders(
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         UUID userId = authenticationCurrentUserService.getCurrentUser().getUserId();
         return ResponseEntity.status(HttpStatus.OK).body(orderService.findAllByUserId(userId, pageable));
@@ -72,10 +93,7 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<Object> getOrderById(@PathVariable UUID orderId) {
         UUID userId = authenticationCurrentUserService.getCurrentUser().getUserId();
-        Optional<OrderModel> orderModelOptional = orderService.findByOrderIdAndUserId(orderId, userId);
-        if(orderModelOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found!");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(orderModelOptional.get());
+        OrderModel orderModel = orderService.findByOrderIdAndUserId(orderId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(orderModel);
     }
 }

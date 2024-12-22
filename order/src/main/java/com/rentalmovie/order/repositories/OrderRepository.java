@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface OrderRepository extends MongoRepository<OrderModel, UUID> {
     Page<OrderModel> findAllByUserId(UUID userId, Pageable pageable);
     Optional<OrderModel> findByOrderIdAndUserId(UUID orderId, UUID userId);
+    Optional<OrderModel> findTopByUserIdOrderByCreatedAtDesc(UUID userId);
 }

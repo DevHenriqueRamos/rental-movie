@@ -1,9 +1,9 @@
 package com.rentalmovie.order.services.impl;
 
+import com.rentalmovie.order.exceptions.ResourceNotFoundException;
 import com.rentalmovie.order.models.MovieModel;
 import com.rentalmovie.order.repositories.MovieRepository;
 import com.rentalmovie.order.services.MovieService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,12 +14,16 @@ import java.util.stream.Collectors;
 @Service
 public class MovieServiceImpl implements MovieService {
 
-    @Autowired
-    MovieRepository movieRepository;
+    private final MovieRepository movieRepository;
+
+    public MovieServiceImpl(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
+    }
 
     @Override
-    public Optional<MovieModel> findById(UUID movieId) {
-        return movieRepository.findById(movieId);
+    public MovieModel findById(UUID movieId) {
+        return movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
     }
 
     @Override
